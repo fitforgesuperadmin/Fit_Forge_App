@@ -61,7 +61,7 @@ class _S16GymIdEntryScreenState extends State<S16GymIdEntryScreen> {
 
           if (mounted) {
             if (role == 'trainer') {
-              context.go('/trainer-dashboard');
+              context.go('/trainer-profile-setup');
             } else {
               context.go('/onboarding1');
             }

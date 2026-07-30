@@ -7,6 +7,7 @@ import '../models/models.dart';
 import '../widgets/custom_button.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../services/hive_service.dart';
+import '../widgets/avatar_picker_bottom_sheet.dart';
 
 class S15ProfileScreen extends StatefulWidget {
   const S15ProfileScreen({Key? key}) : super(key: key);
@@ -17,8 +18,6 @@ class S15ProfileScreen extends StatefulWidget {
 
 class _S15ProfileScreenState extends State<S15ProfileScreen> {
   bool _notificationsEnabled = true;
-  bool _syncEnabled = false;
-  bool _darkThemeEnabled = true;
 
   @override
   Widget build(BuildContext context) {
@@ -48,15 +47,36 @@ class _S15ProfileScreenState extends State<S15ProfileScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColors.elevatedSurface,
-                  border: Border.all(color: AppColors.border, width: 2),
+              GestureDetector(
+                onTap: () {
+                  showAvatarPicker(
+                    context,
+                    currentAvatarId: userProvider.avatarId,
+                    onAvatarSelected: (newAvatarId) {
+                      userProvider.setAvatarId(newAvatarId);
+                    },
+                  );
+                },
+                child: Container(
+                  width: 80,
+                  height: 80,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.elevatedSurface,
+                    border: Border.all(
+                      color: userProvider.avatarId != null ? AppColors.primaryAccent : AppColors.border, 
+                      width: 2
+                    ),
+                  ),
+                  child: userProvider.avatarId != null
+                      ? ClipOval(
+                          child: Image.asset(
+                            'assets/avatars/avatar_${userProvider.avatarId.toString().padLeft(2, '0')}.png',
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(Icons.person, color: AppColors.primaryText, size: 40),
                 ),
-                child: const Icon(Icons.person, color: AppColors.primaryText, size: 40),
               ),
               const SizedBox(height: 16),
               Text(userProvider.name.toUpperCase(), style: AppTextStyles.h2),
@@ -103,8 +123,6 @@ class _S15ProfileScreenState extends State<S15ProfileScreen> {
               _buildNavigationTile('Change Diet Type', () => context.push('/onboarding3')),
               
               _buildSettingTile('Push Notifications', _notificationsEnabled, (v) => setState(() => _notificationsEnabled = v)),
-              _buildSettingTile('Apple Health Sync', _syncEnabled, (v) => setState(() => _syncEnabled = v)),
-              _buildSettingTile('Dark Theme', _darkThemeEnabled, (v) => setState(() => _darkThemeEnabled = v)),
               
               const SizedBox(height: 48),
               SecondaryButton(

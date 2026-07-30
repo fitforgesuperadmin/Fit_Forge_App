@@ -67,6 +67,10 @@ class _S01SplashScreenState extends State<S01SplashScreen> with SingleTickerProv
             
             final dietType = DietType.values.firstWhere((e) => e.name == profileData['diet_type'], orElse: () => DietType.hybrid);
             userProvider.setDietType(dietType);
+            
+            if (profileData['avatar_id'] != null) {
+              userProvider.setAvatarId(profileData['avatar_id']);
+            }
 
             Provider.of<WorkoutProvider>(context, listen: false).initializePlan(goal, intensity);
             Provider.of<DietProvider>(context, listen: false).initializePlan(goal, intensity, dietType);

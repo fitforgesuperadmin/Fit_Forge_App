@@ -19,6 +19,7 @@ class _S18EventsListScreenState extends State<S18EventsListScreen> {
   Map<DateTime, List<dynamic>> _events = {};
   List<dynamic> _allEvents = [];
   bool _isLoading = true;
+  String _selectedFilter = 'All';
 
   @override
   void initState() {
@@ -201,20 +202,82 @@ class _S18EventsListScreenState extends State<S18EventsListScreen> {
                     const SizedBox(height: 32),
                     Text('ALL EVENTS', style: AppTextStyles.labelAllcaps),
                     const SizedBox(height: 16),
-                    if (_allEvents.isEmpty)
-                      Center(
-                        child: Text(
-                          'No events found.',
-                          style: AppTextStyles.bodyMedium.copyWith(color: AppColors.muted),
-                        ),
-                      )
-                    else
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _allEvents.length,
-                        itemBuilder: (context, index) {
-                          final event = _allEvents[index];
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: ['All', 'Ongoing', 'Upcoming', 'Completed'].map((filter) {
+                          final isSelected = _selectedFilter == filter;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8.0),
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedFilter = filter;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: isSelected ? AppColors.primaryText : AppColors.surface,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: isSelected ? AppColors.primaryText : AppColors.border,
+                                  ),
+                                ),
+                                child: Text(
+                                  filter,
+                                  style: AppTextStyles.bodySmall.copyWith(
+                                    color: isSelected ? AppColors.background : AppColors.primaryText,
+                                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Builder(
+                      builder: (context) {
+                        final List<dynamic> filteredEvents = _allEvents.where((event) {
+                          if (_selectedFilter == 'All') return true;
+                          
+                          if (event['event_date'] == null) return false;
+                          final parsedDate = DateTime.tryParse(event['event_date'].toString());
+                          if (parsedDate == null) return false;
+                          
+                          final eventUtc = parsedDate.toUtc();
+                          final normalizedEventDate = DateTime.utc(eventUtc.year, eventUtc.month, eventUtc.day);
+                          
+                          final nowUtc = DateTime.now().toUtc();
+                          final todayNormalized = DateTime.utc(nowUtc.year, nowUtc.month, nowUtc.day);
+
+                          if (_selectedFilter == 'Ongoing') {
+                            return normalizedEventDate.isAtSameMomentAs(todayNormalized);
+                          } else if (_selectedFilter == 'Upcoming') {
+                            return normalizedEventDate.isAfter(todayNormalized);
+                          } else if (_selectedFilter == 'Completed') {
+                            return normalizedEventDate.isBefore(todayNormalized);
+                          }
+                          return true;
+                        }).toList();
+
+                        if (filteredEvents.isEmpty) {
+                          return Center(
+                            child: Text(
+                              'No events found.',
+                              style: AppTextStyles.bodyMedium.copyWith(color: AppColors.muted),
+                            ),
+                          );
+                        }
+
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: filteredEvents.length,
+                          itemBuilder: (context, index) {
+                            final event = filteredEvents[index];
                           final isCompetition = event['is_competition'] == true;
                           final dateStr = event['event_date'] != null ? _formatDateIndian(event['event_date'].toString()) : '';
                           final startTimeStr = event['start_time'] != null ? _formatEventTime(event['start_time'].toString()) : '';
@@ -293,9 +356,9 @@ class _S18EventsListScreenState extends State<S18EventsListScreen> {
                                 ],
                               ),
                             ),
-                          );
-                        },
-                      ),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),

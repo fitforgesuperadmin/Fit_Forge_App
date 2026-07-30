@@ -70,7 +70,16 @@ class WorkoutProvider extends ChangeNotifier {
     }
   }
 
-  void logWorkoutSession(DateTime date, String workoutName) {
+  void logWorkoutSession(
+    DateTime date, 
+    String workoutName, 
+    {
+      int? durationSeconds,
+      double? totalVolume,
+      int? completedSets,
+      List<String>? completedExerciseNames,
+    }
+  ) {
     final box = HiveService.workoutLogsBox;
     // We can use an auto-incrementing int key or a timestamp string
     final id = DateTime.now().millisecondsSinceEpoch.toString();
@@ -79,6 +88,10 @@ class WorkoutProvider extends ChangeNotifier {
       'date': "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}",
       'timestamp': DateTime.now().toIso8601String(),
       'workoutName': workoutName,
+      'durationSeconds': durationSeconds,
+      'totalVolume': totalVolume,
+      'completedSets': completedSets,
+      'completedExerciseNames': completedExerciseNames ?? [],
     });
     
     notifyListeners();

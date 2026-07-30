@@ -118,7 +118,6 @@ class _S09ActiveSessionScreenState extends State<S09ActiveSessionScreen> {
                 final userProvider = Provider.of<UserProvider>(context, listen: false);
                 
                 final today = DateTime.now();
-                workoutProvider.logWorkoutSession(today, widget.workoutDay!.workoutName);
                 
                 // Calculate accurate session data
                 int durationSeconds = _stopwatch.elapsedMilliseconds ~/ 1000;
@@ -144,6 +143,16 @@ class _S09ActiveSessionScreenState extends State<S09ActiveSessionScreen> {
                   completedNames.add(widget.workoutDay!.exercises[exIndex].name);
                 }
                 workoutProvider.sessionCompletedExerciseNames = completedNames;
+                
+                // Pass fields directly to Hive as well
+                workoutProvider.logWorkoutSession(
+                  today, 
+                  widget.workoutDay!.workoutName,
+                  durationSeconds: durationSeconds,
+                  totalVolume: totalVolume,
+                  completedSets: completedSetsCount,
+                  completedExerciseNames: completedNames,
+                );
                 
                 // Streak Logic
                 String todayStr = "${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}";

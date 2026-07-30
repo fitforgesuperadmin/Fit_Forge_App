@@ -29,8 +29,12 @@ import 'screens/s18_events_list_screen.dart';
 import 'screens/s19_event_detail_screen.dart';
 import 'screens/s20_subscription_status_screen.dart';
 import 'screens/s21_song_request_screen.dart';
+import 'screens/s22_past_workout_summary_screen.dart';
+import 'screens/s05c_avatar_picker_screen.dart';
 import 'screens/trainer_dashboard_screen.dart';
 import 'screens/trainer_assigned_user_detail_screen.dart';
+import 'screens/s16b_trainer_profile_setup_screen.dart';
+import 'screens/trainer_profile_screen.dart';
 import 'models/models.dart';
 import 'services/hive_service.dart';
 
@@ -91,6 +95,18 @@ final GoRouter _router = GoRouter(
     GoRoute(
       path: '/onboarding3',
       builder: (context, state) => const S05BDietPreferenceScreen(),
+    ),
+    GoRoute(
+      path: '/avatar-picker',
+      builder: (context, state) => const S05CAvatarPickerScreen(),
+    ),
+    GoRoute(
+      path: '/trainer-profile-setup',
+      builder: (context, state) => const S16bTrainerProfileSetupScreen(),
+    ),
+    GoRoute(
+      path: '/trainer-profile',
+      builder: (context, state) => const TrainerProfileScreen(),
     ),
     GoRoute(
       path: '/trainer-dashboard',
@@ -155,6 +171,20 @@ final GoRouter _router = GoRouter(
               builder: (context, state) {
                 final day = state.extra as WorkoutDay?;
                 return S11PostWorkoutScreen(workoutDay: day);
+              },
+            ),
+            GoRoute(
+              path: 'past-summary',
+              parentNavigatorKey: _rootNavigatorKey,
+              builder: (context, state) {
+                final map = state.extra as Map<String, dynamic>?;
+                if (map != null) {
+                  return S22PastWorkoutSummaryScreen(
+                    workoutDay: map['workoutDay'] as WorkoutDay?,
+                    targetDate: map['targetDate'] as DateTime?,
+                  );
+                }
+                return const S22PastWorkoutSummaryScreen();
               },
             ),
           ]

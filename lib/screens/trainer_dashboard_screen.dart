@@ -39,12 +39,30 @@ class _TrainerDashboardScreenState extends State<TrainerDashboardScreen> {
               children: [
                 Padding(
                   padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('TRAINER DASHBOARD', style: AppTextStyles.labelAllcaps),
-                      const SizedBox(height: 4),
-                      Text('Welcome, $trainerName', style: AppTextStyles.h2),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('TRAINER DASHBOARD', style: AppTextStyles.labelAllcaps),
+                          const SizedBox(height: 4),
+                          Text('Welcome, $trainerName', style: AppTextStyles.h2),
+                        ],
+                      ),
+                      GestureDetector(
+                        onTap: () => context.push('/trainer-profile'),
+                        child: Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.elevatedSurface,
+                            border: Border.all(color: AppColors.border),
+                          ),
+                          child: const Icon(Icons.person, color: AppColors.primaryText),
+                        ),
+                      ),
                     ],
                   ),
                 ),

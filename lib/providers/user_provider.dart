@@ -13,6 +13,7 @@ class UserProvider extends ChangeNotifier {
   Goal _goal = Goal.muscleGain;
   Intensity _intensity = Intensity.medium;
   DietType _dietType = DietType.hybrid;
+  int? _avatarId;
 
   int _streak = 0;
   String? _lastStreakDate;
@@ -44,6 +45,8 @@ class UserProvider extends ChangeNotifier {
     if (dietTypeStr != null) {
       _dietType = DietType.values.firstWhere((e) => e.name == dietTypeStr, orElse: () => DietType.hybrid);
     }
+    
+    _avatarId = box.get('avatarId');
 
     _streak = box.get('streak', defaultValue: 0);
     _lastStreakDate = box.get('last_streak_date');
@@ -87,6 +90,7 @@ class UserProvider extends ChangeNotifier {
   Goal get goal => _goal;
   Intensity get intensity => _intensity;
   DietType get dietType => _dietType;
+  int? get avatarId => _avatarId;
   
   int get streak => _streak;
   String? get lastStreakDate => _lastStreakDate;
@@ -128,6 +132,15 @@ class UserProvider extends ChangeNotifier {
     
     final box = HiveService.userProfileBox;
     box.put('dietType', dietType.name);
+    
+    notifyListeners();
+  }
+
+  void setAvatarId(int avatarId) {
+    _avatarId = avatarId;
+    
+    final box = HiveService.userProfileBox;
+    box.put('avatarId', avatarId);
     
     notifyListeners();
   }

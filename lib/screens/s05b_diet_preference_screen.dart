@@ -34,79 +34,13 @@ class _S05BDietPreferenceScreenState extends State<S05BDietPreferenceScreen> wit
     DietType.hybrid: 'Mix of vegetarian and non-vegetarian meals.',
   };
 
-  late AnimationController _blinkController;
-  late Animation<double> _beamIntensity;
-  bool _isNavigating = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _blinkController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-
-    _beamIntensity = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.2), weight: 50.0),
-      TweenSequenceItem(tween: Tween(begin: 0.2, end: 1.0), weight: 50.0),
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 0.1), weight: 50.0),
-      TweenSequenceItem(tween: Tween(begin: 0.1, end: 3.0), weight: 150.0),
-      TweenSequenceItem(tween: Tween(begin: 3.0, end: 3.0), weight: 300.0),
-    ]).animate(_blinkController);
-  }
-
-  @override
-  void dispose() {
-    _blinkController.dispose();
-    super.dispose();
-  }
-
-  void _triggerBlinkAndFinish() {
-    setState(() {
-      _isNavigating = true;
-    });
-    _blinkController.forward().then((_) {
-      _finishOnboarding();
-    });
-  }
-
-  Future<void> _finishOnboarding() async {
-    // Save diet type to user provider
+  void _navigateToAvatarPicker() {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
     userProvider.setDietType(_selectedDietType);
-        
-    final session = Supabase.instance.client.auth.currentSession;
-    if (session != null) {
-      try {
-        await Supabase.instance.client.from('profiles').upsert({
-          'id': session.user.id,
-          'name': userProvider.name,
-          'weight_kg': userProvider.weight,
-          'height_cm': userProvider.height,
-          'age': userProvider.age,
-          'gender': userProvider.gender,
-          'activity_level': userProvider.activityLevel,
-          'goal': userProvider.goal.name,
-          'intensity': userProvider.intensity.name,
-          'diet_type': userProvider.dietType.name,
-          'onboarding_complete': true,
-        });
-      } catch (e) {
-        print('Error saving profile: $e');
-        // silently handle or log if needed
-      }
-    }
-
-    if (mounted) {
-      // Initialize plans
-      Provider.of<WorkoutProvider>(context, listen: false)
-          .initializePlan(userProvider.goal, userProvider.intensity);
-      Provider.of<DietProvider>(context, listen: false)
-          .initializePlan(userProvider.goal, userProvider.intensity, _selectedDietType);
-
-      context.go('/dashboard');
-    }
+    context.push('/avatar-picker');
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,12 +54,12 @@ class _S05BDietPreferenceScreenState extends State<S05BDietPreferenceScreen> wit
           icon: const Icon(Icons.arrow_back, color: AppColors.primaryText),
           onPressed: () => context.pop(),
         ),
-        title: Text('STEP 3 OF 3', style: AppTextStyles.labelAllcaps),
+        title: Text('STEP 3 OF 4', style: AppTextStyles.labelAllcaps),
         centerTitle: true,
       ),
       body: Stack(
         children: [
-          AtmosphericBackground(beamIntensity: _beamIntensity),
+          AtmosphericBackground(),
           SafeArea(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24.0),
@@ -191,9 +125,8 @@ class _S05BDietPreferenceScreenState extends State<S05BDietPreferenceScreen> wit
                   
                   const SizedBox(height: 48),
                   PrimaryButton(
-                    text: "LET'S BUILD YOUR PLAN",
-                    isLoading: _isNavigating,
-                    onPressed: _triggerBlinkAndFinish,
+                    text: "CONTINUE",
+                    onPressed: _navigateToAvatarPicker,
                   ),
                   const SizedBox(height: 24),
                 ],

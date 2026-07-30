@@ -142,6 +142,24 @@ class S07WorkoutListScreen extends StatelessWidget {
                               _buildChip(Icons.timer, '${day.durationMinutes} min'),
                               const SizedBox(width: 8),
                               _buildChip(Icons.fitness_center, '${day.exercises.length} Exercises'),
+                              const Spacer(),
+                              GestureDetector(
+                                onTap: () {
+                                  context.push('/workout/past-summary', extra: {
+                                    'workoutDay': day,
+                                    'targetDate': dateForCard,
+                                  });
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.elevatedSurface,
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: AppColors.border),
+                                  ),
+                                  child: Text('View Summary', style: AppTextStyles.bodySmall),
+                                ),
+                              ),
                             ],
                           ),
                         ]
